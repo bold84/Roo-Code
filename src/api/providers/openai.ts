@@ -124,7 +124,12 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 
 			const requestOptions: OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming = {
 				model: modelId,
-				temperature: this.options.modelTemperature ?? (deepseekReasoner ? DEEP_SEEK_DEFAULT_TEMPERATURE : 0),
+				temperature:
+					this.options.modelTemperature !== undefined && this.options.modelTemperature !== null
+						? this.options.modelTemperature
+						: deepseekReasoner
+							? DEEP_SEEK_DEFAULT_TEMPERATURE
+							: 0,
 				messages: convertedMessages,
 				stream: true as const,
 				stream_options: { include_usage: true },
@@ -205,7 +210,11 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 				messages: deepseekReasoner
 					? convertToR1Format([{ role: "user", content: systemPrompt }, ...messages])
 					: [systemMessage, ...convertToOpenAiMessages(messages)],
-				temperature: this.options.modelTemperature ?? (deepseekReasoner ? DEEP_SEEK_DEFAULT_TEMPERATURE : 0),
+				...(this.options.modelTemperature !== undefined && this.options.modelTemperature !== null
+					? { temperature: this.options.modelTemperature }
+					: deepseekReasoner
+						? { temperature: DEEP_SEEK_DEFAULT_TEMPERATURE }
+						: {}),
 			}
 
 			// Add min_p if set
@@ -258,7 +267,9 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 			const requestOptions: OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming = {
 				model: this.getModel().id,
 				messages: [{ role: "user", content: prompt }],
-				temperature: this.options.modelTemperature ?? 0,
+				...(this.options.modelTemperature !== undefined && this.options.modelTemperature !== null
+					? { temperature: this.options.modelTemperature }
+					: {}),
 			}
 
 			// Add min_p if set
@@ -309,7 +320,9 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 				stream: true as const,
 				stream_options: { include_usage: true },
 				reasoning_effort: this.getModel().info.reasoningEffort,
-				temperature: this.options.modelTemperature ?? 0,
+				...(this.options.modelTemperature !== undefined && this.options.modelTemperature !== null
+					? { temperature: this.options.modelTemperature }
+					: {}),
 			} as any
 
 			// Add min_p if set
@@ -345,7 +358,9 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 					},
 					...convertToOpenAiMessages(messages),
 				],
-				temperature: this.options.modelTemperature ?? 0,
+				...(this.options.modelTemperature !== undefined && this.options.modelTemperature !== null
+					? { temperature: this.options.modelTemperature }
+					: {}),
 			}
 
 			// Add min_p if set
